@@ -450,6 +450,54 @@ SQL_QUERY_MUTATOR = None
 # using flask-compress
 ENABLE_FLASK_COMPRESS = True
 
+#---------------------------------------------------------
+# Superset specific config
+#---------------------------------------------------------
+ROW_LIMIT = 5000
+APP_NAME = os.environ.get('APP_NAME', 'MM Dashboard')
+#SUPERSET_WEBSERVER_PORT = os.environ("PORT")
+#---------------------------------------------------------
+
+#---------------------------------------------------------
+# Flask App Builder configuration
+#---------------------------------------------------------
+# Your App secret key
+SECRET_KEY = os.environ.get('FLASK_SECRET_KEY', 'hard-to-guess-string')
+
+# The SQLAlchemy connection string to your database backend
+# This connection defines the path to the database that stores your
+# superset metadata (slices, connections, tables, dashboards, ...).
+# Note that the connection information to connect to the datasources
+# you want to explore are managed directly in the web UI
+# SQLALCHEMY_DATABASE_URI = 'sqlite://'
+
+if os.environ.get('APP_ENV', '') in ['production', 'testing']:
+	base = json.loads(os.environ["VCAP_SERVICES"])['mariadbent'][0]['credentials']
+	username = base['username']
+	password = base['password']
+	db_name = base['name']
+	host = base['host']
+	SQLALCHEMY_DATABASE_URI = 'mysql+mysqldb://{0}:{1}@{2}/{3}'.format(username, password, host, db_name)
+
+# smtp server configuration
+EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
+SMTP_HOST = os.environ.get('SMTP_HOST', 'localhost')
+SMTP_STARTTLS = False
+SMTP_SSL = False
+SMTP_USER = ''
+SMTP_PORT = os.environ.get('SMTP_PORT', 25)
+SMTP_PASSWORD = ''
+SMTP_MAIL_FROM = os.environ.get('SMTP_MAIL_FROM', 'superset@superset.com')
+
+# Allow for javascript controls components
+# this enables programmers to customize certain charts (like the
+# geospatial ones) by inputing javascript in controls. This exposes
+# an XSS security vulnerability
+ENABLE_JAVASCRIPT_CONTROLS = True
+
+# Set this API key to enable Mapbox visualizations
+MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY', '')
+
 try:
     if CONFIG_PATH_ENV_VAR in os.environ:
         # Explicitly import config module that is not in pythonpath; useful
